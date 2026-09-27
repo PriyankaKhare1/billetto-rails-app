@@ -1,0 +1,41 @@
+<style>
+  .auth-container { max-width: 400px; margin: 3rem auto; text-align: center; }
+  .auth-box { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+  .auth-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .auth-subtitle { color: #666; margin-bottom: 2rem; font-size: 0.9rem; }
+  #clerk-sign-up { min-height: 400px; }
+</style>
+
+<div class="auth-container">
+  <div class="auth-box">
+    <h1 class="auth-title">Sign Up</h1>
+    <p class="auth-subtitle">Create an account to vote on events</p>
+    <!-- Clerk Sign Up component mounts here -->
+    <div id="clerk-sign-up"></div>
+  </div>
+</div>
+
+<script>
+  // Wait for Clerk to be fully loaded
+  function mountClerkSignUp() {
+    if (window.Clerk && window.Clerk.loaded) {
+      const signUpDiv = document.getElementById("clerk-sign-up");
+      if (signUpDiv) {
+        window.Clerk.mountSignUp(signUpDiv, {
+          afterSignUpUrl: "<%= clerk_callback_path %>",
+          routing: "virtual"
+        });
+      }
+    } else {
+      // Retry after 100ms if Clerk not ready
+      setTimeout(mountClerkSignUp, 100);
+    }
+  }
+  
+  // Start mounting when page loads
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountClerkSignUp);
+  } else {
+    mountClerkSignUp();
+  }
+</script>

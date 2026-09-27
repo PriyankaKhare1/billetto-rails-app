@@ -1,0 +1,81 @@
+<style>
+  .event-detail { max-width: 800px; margin: 0 auto; }
+  .back-link { color: #e84393; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 1.5rem; }
+  .event-hero-image { width: 100%; height: 350px; object-fit: cover; border-radius: 8px; margin-bottom: 1.5rem; }
+  .event-hero-placeholder { width: 100%; height: 350px; background: linear-gradient(135deg, #e84393, #ff6b9d); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin-bottom: 1.5rem; }
+  .event-detail-title { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+  .event-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem; padding: 1rem; background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .event-meta-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: #555; }
+  .event-meta-item strong { color: #333; }
+  .event-description-full { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 1.5rem; line-height: 1.7; }
+  .vote-section { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .vote-section h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+  .vote-buttons { display: flex; gap: 1rem; align-items: center; }
+  .vote-btn-large { padding: 0.6rem 1.5rem; border-radius: 25px; border: 2px solid; cursor: pointer; font-size: 1rem; background: transparent; font-weight: 600; }
+  .vote-btn-large-up { border-color: #28a745; color: #28a745; }
+  .vote-btn-large-up:hover { background: #28a745; color: #fff; }
+  .vote-btn-large-down { border-color: #dc3545; color: #dc3545; }
+  .vote-btn-large-down:hover { background: #dc3545; color: #fff; }
+  .vote-score { font-size: 0.9rem; color: #666; margin-left: 1rem; }
+</style>
+
+<div class="event-detail">
+  <%= link_to "← Back to Events", root_path, class: "back-link" %>
+
+  <% if @event.image_url.present? %>
+    <img src="<%= @event.image_url %>" alt="<%= @event.title %>" class="event-hero-image">
+  <% else %>
+    <div class="event-hero-placeholder">🎭</div>
+  <% end %>
+
+  <h1 class="event-detail-title"><%= @event.title %></h1>
+
+  <div class="event-meta">
+    <% if @event.start_date %>
+      <div class="event-meta-item">
+        📅 <strong>Date:</strong> <%= @event.start_date.strftime("%d %B %Y") %>
+      </div>
+      <div class="event-meta-item">
+        🕐 <strong>Time:</strong> <%= @event.start_date.strftime("%H:%M") %>
+      </div>
+    <% end %>
+    <% if @event.location.present? %>
+      <div class="event-meta-item">
+        📍 <strong>Location:</strong> <%= @event.location %>
+      </div>
+    <% end %>
+    <% if @event.url.present? %>
+      <div class="event-meta-item">
+        🔗 <%= link_to "View on Billetto", @event.url, target: "_blank", style: "color:#e84393;" %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @event.description.present? %>
+    <div class="event-description-full">
+      <%= simple_format(@event.description) %>
+    </div>
+  <% end %>
+
+  <!-- Doc 1: Voting feature - like or dislike, restricted to logged-in users -->
+  <div class="vote-section">
+    <h3>Vote on this event</h3>
+    <div class="vote-buttons">
+      <% if logged_in? %>
+        <%= button_to "👍 Upvote", upvote_event_path(@event), method: :post, class: "vote-btn-large vote-btn-large-up" %>
+        <%= button_to "👎 Downvote", downvote_event_path(@event), method: :post, class: "vote-btn-large vote-btn-large-down" %>
+        <span class="vote-score">
+          👍 <%= @event.upvotes_count %> &nbsp; 👎 <%= @event.downvotes_count %>
+        </span>
+      <% else %>
+        <p>
+          <%= link_to "Sign in", sign_in_path, style: "color:#e84393; font-weight:600;" %>
+          to vote on this event.
+        </p>
+        <span class="vote-score">
+          👍 <%= @event.upvotes_count %> &nbsp; 👎 <%= @event.downvotes_count %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+</div>

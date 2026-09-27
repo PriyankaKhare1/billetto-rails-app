@@ -1,0 +1,6 @@
+<%= turbo_stream.replace "vote_bar_#{@event.id}" do %>
+  <div class="vote-bar" id="vote_bar_<%= @event.id %>">
+    <%= button_to "👍 #{@event.upvotes_count}", upvote_event_path(@event), method: :post, class: "vote-btn vote-btn-up" %>
+    <%= button_to "👎 #{@event.downvotes_count}", downvote_event_path(@event), method: :post, class: "vote-btn vote-btn-down" %>
+  </div>
+<% end %>

@@ -1,0 +1,81 @@
+<style>
+  .page-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .page-subtitle { color: #666; margin-bottom: 2rem; }
+  .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+  .event-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s; }
+  .event-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .event-image { width: 100%; height: 200px; object-fit: cover; background: #f0f0f0; }
+  .event-image-placeholder { width: 100%; height: 200px; background: linear-gradient(135deg, #e84393, #ff6b9d); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem; }
+  .event-body { padding: 1.2rem; }
+  .event-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .event-title a { color: #333; text-decoration: none; }
+  .event-title a:hover { color: #e84393; }
+  .event-date { font-size: 0.85rem; color: #e84393; margin-bottom: 0.5rem; }
+  .event-location { font-size: 0.85rem; color: #666; margin-bottom: 0.75rem; }
+  .event-description { font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 1rem; }
+  .vote-bar { display: flex; gap: 0.5rem; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 0.75rem; }
+  .vote-btn { padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid; cursor: pointer; font-size: 0.85rem; background: transparent; }
+  .vote-btn-up { border-color: #28a745; color: #28a745; }
+  .vote-btn-up:hover { background: #28a745; color: #fff; }
+  .vote-btn-down { border-color: #dc3545; color: #dc3545; }
+  .vote-btn-down:hover { background: #dc3545; color: #fff; }
+  .vote-count { font-size: 0.8rem; color: #666; }
+  .empty-state { text-align: center; padding: 4rem 2rem; color: #666; }
+  .pagination { margin-top: 2rem; display: flex; justify-content: center; gap: 0.5rem; }
+</style>
+
+<h1 class="page-title">Upcoming Events</h1>
+<p class="page-subtitle">Discover and vote on events from Billetto</p>
+
+<% if @events.empty? %>
+  <div class="empty-state">
+    <p style="font-size:1.2rem; margin-bottom:1rem;">No events yet.</p>
+    <p>Events will appear here once ingested from the Billetto API.</p>
+  </div>
+<% else %>
+  <div class="events-grid">
+    <% @events.each do |event| %>
+      <div class="event-card">
+        <% if event.image_url.present? %>
+          <img src="<%= event.image_url %>" alt="<%= event.title %>" class="event-image">
+        <% else %>
+          <div class="event-image-placeholder">🎭</div>
+        <% end %>
+
+        <div class="event-body">
+          <div class="event-title">
+            <%= link_to event.title, event_path(event) %>
+          </div>
+
+          <div class="event-date">
+            📅 <%= event.start_date.strftime("%d %b %Y, %H:%M") if event.start_date %>
+          </div>
+
+          <% if event.location.present? %>
+            <div class="event-location">📍 <%= event.location %></div>
+          <% end %>
+
+          <div class="event-description">
+            <%= truncate(strip_tags(event.description.to_s), length: 120) %>
+          </div>
+
+          <!-- Doc 1: Display total vote counts for each event -->
+          <div class="vote-bar" id="vote_bar_<%= event.id %>">
+            <% if logged_in? %>
+              <%= button_to "👍 #{event.upvotes_count}", upvote_event_path(event), method: :post, class: "vote-btn vote-btn-up" %>
+              <%= button_to "👎 #{event.downvotes_count}", downvote_event_path(event), method: :post, class: "vote-btn vote-btn-down" %>
+            <% else %>
+              <span class="vote-count">👍 <%= event.upvotes_count %></span>
+              <span class="vote-count">👎 <%= event.downvotes_count %></span>
+              <%= link_to "Sign in to vote", sign_in_path, style: "font-size:0.8rem; color:#e84393; margin-left:auto;" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="pagination">
+    <%= paginate @events %>
+  </div>
+<% end %>
