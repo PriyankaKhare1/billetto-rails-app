@@ -46,8 +46,8 @@ CLERK_PUBLISHABLE_KEY=pk_test_ZGFyaW5nLXNhd2Zpc2gtNDAyNS5jbGVyay5hY2NvdW50cy5kZX
 CLERK_SECRET_KEY=your_clerk_secret_key_here
 
 # Billetto API
-BILLETTO_ACCESS_KEY=BLT2KPKKJ8BXD1E2U36MNQ4EM
-BILLETTO_SECRET=your_billetto_secret_here
+BILLETTO_ACCESS_KEY_ID=BLT2KPKKJ8BXD1E2U36MNQ4EM
+BILLETTO_SECRET_KEY=your_billetto_secret_here
 ```
 
 **⚠️ IMPORTANT**: Replace the Clerk secret key with your actual key from https://dashboard.clerk.com
@@ -261,8 +261,8 @@ bundle exec rspec
 |----------|---------|---------|
 | CLERK_PUBLISHABLE_KEY | Clerk frontend key | pk_test_... |
 | CLERK_SECRET_KEY | Clerk backend key | sk_test_... |
-| BILLETTO_ACCESS_KEY | Billetto API access | BLT2KP... |
-| BILLETTO_SECRET | Billetto API secret | x9VUvg... |
+| BILLETTO_ACCESS_KEY_ID | Billetto API access | BLT2KP... |
+| BILLETTO_SECRET_KEY | Billetto API secret | x9VUvg... |
 | DATABASE_URL (optional) | PostgreSQL connection | postgresql://... |
 
 ## Production Deployment
