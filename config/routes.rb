@@ -17,4 +17,8 @@ Rails.application.routes.draw do
   delete "/sign_out",       to: "sessions#destroy", as: :sign_out
 
   get "up" => "rails/health#show", as: :rails_health_check
+
+  if Rails.env.test?
+    get "/test/sign_in", to: "test_sessions#create", as: :test_sign_in
+  end
 end
