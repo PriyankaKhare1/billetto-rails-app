@@ -30,19 +30,24 @@ class SessionsController < ApplicationController
   private
 
   def extract_clerk_user_from_token
-    token = cookies[:__session] || cookies[:__client_uat]
+    token = cookies[:__session]
     return nil if token.blank?
 
     begin
-      payload = token.split('.')[1]
-      return nil if payload.blank?
-
-      decoded = Base64.decode64(payload + '==')
-      data = JSON.parse(decoded)
-      data['sub']
+      jwks_response = Net::HTTP.get(URI("https://#{clerk_frontend_api}/v1/jwks"))
+      jwks = JSON.parse(jwks_response)
+      jwk = JWT::JWK::Set.new(jwks)
+      payload, = JWT.decode(token, nil, true, algorithms: ["RS256"], jwks: jwk)
+      payload["sub"]
     rescue => e
-      Rails.logger.warn "Clerk token decode failed: #{e.message}"
+      Rails.logger.warn "Clerk token verification failed: #{e.message}"
       nil
     end
+  end
+
+  def clerk_frontend_api
+    key = ENV["CLERK_PUBLISHABLE_KEY"].to_s
+    encoded = key.sub("pk_test_", "").sub("pk_live_", "")
+    Base64.decode64(encoded + "==").strip.chomp("$")
   end
 end

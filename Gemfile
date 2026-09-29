@@ -73,3 +73,4 @@ gem "rspec-rails", "~> 7.1"
 gem "kaminari", "~> 1.2"
 
 gem "dotenv-rails", "~> 3.2"
+gem "jwt", "~> 2.7"
