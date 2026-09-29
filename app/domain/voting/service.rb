@@ -2,11 +2,17 @@
 
 module Voting
   class Service
+    class DuplicateVoteError < StandardError; end
+
     def initialize(event_store: Rails.configuration.event_store)
       @event_store = event_store
     end
 
     def upvote(event:, user_id:)
+      raise DuplicateVoteError if Vote.exists?(user_id: user_id, event_id: event.id)
+
+      Vote.create!(user_id: user_id, event_id: event.id, vote_type: "up")
+
       domain_event = Voting::EventUpvoted.new(data: {
         event_id: event.id,
         user_id:  user_id,
@@ -17,6 +23,10 @@ module Voting
     end
 
     def downvote(event:, user_id:)
+      raise DuplicateVoteError if Vote.exists?(user_id: user_id, event_id: event.id)
+
+      Vote.create!(user_id: user_id, event_id: event.id, vote_type: "down")
+
       domain_event = Voting::EventDownvoted.new(data: {
         event_id: event.id,
         user_id:  user_id,

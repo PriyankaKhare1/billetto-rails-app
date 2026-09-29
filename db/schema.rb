@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_28_204245) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_28_205248) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -51,6 +51,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_28_204245) do
     t.integer "upvotes_count", default: 0, null: false
     t.integer "downvotes_count", default: 0, null: false
     t.index ["billetto_id"], name: "index_events_on_billetto_id", unique: true
+  end
+
+  create_table "votes", force: :cascade do |t|
+    t.string "user_id", null: false
+    t.integer "event_id", null: false
+    t.string "vote_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "event_id"], name: "index_votes_on_user_id_and_event_id", unique: true
   end
 
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"

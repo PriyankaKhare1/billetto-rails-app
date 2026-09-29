@@ -13,21 +13,30 @@ class EventsController < ApplicationController
 
   def upvote
     voting_service.upvote(event: @event, user_id: current_user_id)
-
     respond_to do |format|
       format.html { redirect_to @event, notice: "Upvoted!" }
       format.turbo_stream
     end
+    rescue Voting::Service::DuplicateVoteError
+      respond_to do |format|
+        format.html { redirect_to @event, alert: "You have already voted on this event." }
+        format.turbo_stream
+      end
   end
 
   def downvote
     voting_service.downvote(event: @event, user_id: current_user_id)
-
     respond_to do |format|
       format.html { redirect_to @event, notice: "Downvoted!" }
       format.turbo_stream
     end
+    rescue Voting::Service::DuplicateVoteError
+      respond_to do |format|
+        format.html { redirect_to @event, alert: "You have already voted on this event." }
+        format.turbo_stream
+      end
   end
+
 
   private
 

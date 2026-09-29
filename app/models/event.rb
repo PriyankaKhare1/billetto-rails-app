@@ -7,6 +7,8 @@ class Event < ApplicationRecord
   validates :upvotes_count,   numericality: { greater_than_or_equal_to: 0 }
   validates :downvotes_count, numericality: { greater_than_or_equal_to: 0 }
 
+  has_many :votes
+
   scope :upcoming, -> { where("start_date >= ?", Time.current).order(:start_date) }
   scope :past,     -> { where("start_date < ?",  Time.current).order(start_date: :desc) }
 end

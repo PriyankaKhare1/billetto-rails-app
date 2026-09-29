@@ -88,12 +88,12 @@ RSpec.describe "Voting with Rails Event Store", type: :request do
     end
 
     it "tracks multiple votes correctly" do
-      3.times { post upvote_event_path(billetto_event) }
-      2.times { post downvote_event_path(billetto_event) }
+      post upvote_event_path(billetto_event)
+      post downvote_event_path(billetto_event)
 
       billetto_event.reload
-      expect(billetto_event.upvotes_count).to eq(3)
-      expect(billetto_event.downvotes_count).to eq(2)
+      expect(billetto_event.upvotes_count).to eq(1)
+      expect(billetto_event.downvotes_count).to eq(0)
     end
   end
 end
