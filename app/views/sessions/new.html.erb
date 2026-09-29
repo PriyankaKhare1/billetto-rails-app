@@ -10,29 +10,24 @@
   <div class="auth-box">
     <h1 class="auth-title">Sign In</h1>
     <p class="auth-subtitle">Sign in to vote on events</p>
-    <!-- Clerk Sign In component mounts here -->
     <div id="clerk-sign-in"></div>
   </div>
 </div>
 
 <script>
-  // Wait for Clerk to be fully loaded
   function mountClerkSignIn() {
-    if (window.Clerk && window.Clerk.loaded) {
-      const signInDiv = document.getElementById("clerk-sign-in");
-      if (signInDiv) {
-        window.Clerk.mountSignIn(signInDiv, {
-          afterSignInUrl: "<%= clerk_callback_path %>",
-          routing: "virtual"
-        });
-      }
+    if (window.clerkReady) {
+      window.clerkReady.then(function(clerk) { clerk.mountSignIn(document.getElementById("clerk-sign-in"), {
+        afterSignInUrl: window.location.origin,
+        afterSignUpUrl: window.location.origin,
+        routing: "path",
+        path: "/sign_in"
+      }); }).catch(function(error) { console.error('Could not mount Clerk sign-in:', error); });
     } else {
-      // Retry after 100ms if Clerk not ready
       setTimeout(mountClerkSignIn, 100);
     }
   }
-  
-  // Start mounting when page loads
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mountClerkSignIn);
   } else {

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require "clerk/authenticatable"
+
 class ApplicationController < ActionController::Base
+  include Clerk::Authenticatable
+
   helper_method :current_user_id, :logged_in?
 
   private

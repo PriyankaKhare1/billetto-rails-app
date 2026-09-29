@@ -10,44 +10,31 @@ class SessionsController < ApplicationController
   end
 
   def create
-    clerk_user_id = params[:clerk_user_id] || extract_clerk_user_from_token
+    clerk_user_id = verified_clerk_user_id
 
     if clerk_user_id.present?
+      reset_session
       session[:clerk_user_id] = clerk_user_id
-      redirect_to root_path, notice: "Successfully signed in!"
+      respond_to do |format|
+        format.json { render json: { status: "ok", user_id: clerk_user_id } }
+        format.html { redirect_to root_path, notice: "Successfully signed in!" }
+      end
     else
-      session[:clerk_pending] = true
-      redirect_to root_path, notice: "Welcome! You are now signed in."
+      respond_to do |format|
+        format.json { render json: { status: "error" }, status: :unauthorized }
+        format.html { redirect_to sign_in_path, alert: "Authentication failed." }
+      end
     end
   end
 
   def destroy
     session.delete(:clerk_user_id)
-    session.delete(:clerk_pending)
     redirect_to root_path, notice: "Successfully signed out!"
   end
 
   private
 
-  def extract_clerk_user_from_token
-    token = cookies[:__session]
-    return nil if token.blank?
-
-    begin
-      jwks_response = Net::HTTP.get(URI("https://#{clerk_frontend_api}/v1/jwks"))
-      jwks = JSON.parse(jwks_response)
-      jwk = JWT::JWK::Set.new(jwks)
-      payload, = JWT.decode(token, nil, true, algorithms: ["RS256"], jwks: jwk)
-      payload["sub"]
-    rescue => e
-      Rails.logger.warn "Clerk token verification failed: #{e.message}"
-      nil
-    end
-  end
-
-  def clerk_frontend_api
-    key = ENV["CLERK_PUBLISHABLE_KEY"].to_s
-    encoded = key.sub("pk_test_", "").sub("pk_live_", "")
-    Base64.decode64(encoded + "==").strip.chomp("$")
+  def verified_clerk_user_id
+    clerk_verified_session_claims&.fetch("sub", nil)
   end
 end

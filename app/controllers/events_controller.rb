@@ -12,31 +12,46 @@ class EventsController < ApplicationController
   end
 
   def upvote
-    voting_service.upvote(event: @event, user_id: current_user_id)
-    respond_to do |format|
-      format.html { redirect_to @event, notice: "Upvoted!" }
-      format.turbo_stream
-    end
+    begin
+      voting_service.upvote(event: @event, user_id: current_user_id)
+      respond_to do |format|
+        format.html { redirect_to @event, notice: "Upvoted!" }
+        format.turbo_stream
+      end
     rescue Voting::Service::DuplicateVoteError
       respond_to do |format|
         format.html { redirect_to @event, alert: "You have already voted on this event." }
-        format.turbo_stream
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "flash",
+            partial: "shared/flash",
+            locals: { message: "You have already voted on this event." }
+          ), status: :unprocessable_entity
+        end
       end
+    end
   end
 
   def downvote
-    voting_service.downvote(event: @event, user_id: current_user_id)
-    respond_to do |format|
-      format.html { redirect_to @event, notice: "Downvoted!" }
-      format.turbo_stream
-    end
+    begin
+      voting_service.downvote(event: @event, user_id: current_user_id)
+      respond_to do |format|
+        format.html { redirect_to @event, notice: "Downvoted!" }
+        format.turbo_stream
+      end
     rescue Voting::Service::DuplicateVoteError
       respond_to do |format|
         format.html { redirect_to @event, alert: "You have already voted on this event." }
-        format.turbo_stream
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "flash",
+            partial: "shared/flash",
+            locals: { message: "You have already voted on this event." }
+          ), status: :unprocessable_entity
+        end
       end
+    end
   end
-
 
   private
 

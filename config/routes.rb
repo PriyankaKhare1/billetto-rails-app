@@ -10,8 +10,10 @@ Rails.application.routes.draw do
     end
   end
 
-  get    "/sign_in",        to: "sessions#new",     as: :sign_in
-  get    "/sign_up",        to: "sessions#sign_up", as: :sign_up
+  get    "/sign_in",       to: "sessions#new",     as: :sign_in
+  get    "/sign_in/*path", to: "sessions#new"
+  get    "/sign_up",       to: "sessions#sign_up", as: :sign_up
+  get    "/sign_up/*path", to: "sessions#sign_up"
   get    "/clerk/callback", to: "sessions#create",  as: :clerk_callback
   post   "/clerk/callback", to: "sessions#create"
   delete "/sign_out",       to: "sessions#destroy", as: :sign_out

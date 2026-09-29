@@ -73,4 +73,6 @@ gem "rspec-rails", "~> 7.1"
 gem "kaminari", "~> 1.2"
 
 gem "dotenv-rails", "~> 3.2"
+gem "clerk-sdk-ruby", "~> 3.3", require: "clerk"
 gem "jwt", "~> 2.7"
+gem "json", "< 3"

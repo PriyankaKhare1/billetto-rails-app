@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # Rake tasks for Billetto API data ingestion
-# Doc 1: "Fetches and ingests events data from the Billetto API"
 namespace :billetto do
   desc "Ingest events from Billetto API into local database"
   task ingest_events: :environment do

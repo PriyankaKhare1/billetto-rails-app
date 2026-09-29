@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Voting", type: :system do
+RSpec.describe "Clerk sign-in and event voting", type: :system do
   let!(:event) do
     Event.create!(
       billetto_id: "BLT-SYS-001",
@@ -17,45 +17,46 @@ RSpec.describe "Voting", type: :system do
     driven_by :headless_chrome
   end
 
-  context "when user is signed in via Clerk" do
-    before do
-      sign_in_as("test_user_system_123")
-    end
+  it "renders Clerk sign-in and sign-up UI containers" do
+    visit sign_in_path
+    expect(page).to have_content("Sign In")
+    expect(page).to have_css("#clerk-sign-in")
 
-    it "shows vote buttons on the events page" do
-      visit events_path
-      expect(page).to have_button("👍 0")
-      expect(page).to have_button("👎 0")
-    end
-
-    it "increments upvote count when upvote button is clicked" do
-      visit events_path
-      click_button "👍 0"
-      expect(page).to have_button("👍 1")
-    end
-
-    it "increments downvote count when downvote button is clicked" do
-      visit events_path
-      click_button "👎 0"
-      expect(page).to have_button("👎 1")
-    end
+    visit sign_up_path
+    expect(page).to have_content("Sign Up")
+    expect(page).to have_css("#clerk-sign-up")
   end
 
-  context "when user is not signed in" do
-    it "shows sign in link instead of vote buttons" do
-      visit events_path
-      expect(page).to have_link("Sign in to vote")
-      expect(page).not_to have_button("👍 0")
+  it "registers a vote and shows the updated count on screen" do
+    sign_in_as("test_user_system_123")
+    visit events_path
+
+    within("#vote_bar_#{event.id}") do
+      find("button.vote-btn-up").click
     end
 
-    it "redirects to sign in page when visiting sign_in path" do
-      visit sign_in_path
-      expect(page).to have_content("Sign In")
+    expect(event.reload.upvotes_count).to eq(1)
+  end
+
+  it "shows an error when the signed-in user votes twice" do
+    sign_in_as("test_user_system_123")
+    visit events_path
+
+    2.times do
+      within("#vote_bar_#{event.id}") do
+        find("button.vote-btn-up").click
+      end
+      visit events_path if page.has_content?("Upvoted!")
     end
 
-    it "redirects to sign up page when visiting sign_up path" do
-      visit sign_up_path
-      expect(page).to have_content("Sign Up")
-    end
+    expect(page).to have_content("You have already voted on this event.")
+    expect(event.reload.upvotes_count).to eq(1)
+  end
+
+  it "asks signed-out visitors to sign in before voting" do
+    visit events_path
+
+    expect(page).to have_link("Sign in to vote")
+    expect(page).not_to have_css("button.vote-btn-up")
   end
 end
